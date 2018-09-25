@@ -69,7 +69,9 @@ func (rl *PipeRelay) Receive() (data []byte, p Prefix, err error) {
 
 	//data = make([]byte, 0, p.Size())
 	leftBytes := p.Size()
-	buffer := make([]byte, min(uint64(cap(data)), rl.BufferSize))
+
+	buffer := makeBytes() //make([]byte, min(uint64(cap(data)), rl.BufferSize))
+	defer releaseBytes(buffer)
 
 	for {
 		if n, err := rl.in.Read(buffer); err == nil {
