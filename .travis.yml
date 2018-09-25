@@ -16,11 +16,13 @@ before_install:
 
 install:
   - composer install --no-interaction --prefer-source
-  - go get "github.com/spiral/goridge"
-  - cp -r * goridge
-  - go get "github.com/pkg/errors"
-  - go get "github.com/stretchr/testify/assert"
+#  - go get "github.com/spiral/goridge"
+#  - cp -r * $GOPATH/src/github.com/spiral/goridge
+  - go mod tidy
+#  - go get "github.com/pkg/errors"
+#  - go get "github.com/stretchr/testify/assert"
   - env GO111MODULE=on go build tests/server.go
+
 
 before_script:
   - ./server &
