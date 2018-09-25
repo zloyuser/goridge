@@ -9,7 +9,7 @@ php:
   - nightly
 
 go:
-  - 1.8
+  - 1.11
 
 before_install:
   - composer self-update
@@ -27,7 +27,8 @@ before_script:
   - ./server server.sock &
 
 script:
-  - go test -v
+  - env GO111MODULE=on go build
+  - env GO111MODULE=on go test
   - vendor/bin/phpunit --coverage-clover=clover.xml
 
 after_script:
