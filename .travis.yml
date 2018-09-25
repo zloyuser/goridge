@@ -13,6 +13,7 @@ go:
 
 before_install:
   - composer self-update
+  - sudo snap install go --classic
 
 install:
   - composer install --no-interaction --prefer-source
