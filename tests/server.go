@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/spiral/goridge"
+	"goridge"
 	"net"
 	"net/rpc"
 	"os"

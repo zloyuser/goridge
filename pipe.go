@@ -1,9 +1,9 @@
 package goridge
 
 import (
+	"errors"
 	"io"
 	"sync"
-	"errors"
 )
 
 // PipeRelay communicate with underlying process using standard streams (STDIN, STDOUT). Attention, use TCP alternative for
@@ -64,7 +64,10 @@ func (rl *PipeRelay) Receive() (data []byte, p Prefix, err error) {
 		return nil, p, nil
 	}
 
-	data = make([]byte, 0, p.Size())
+	data = makeBytes()
+	defer releaseBytes(data)
+
+	//data = make([]byte, 0, p.Size())
 	leftBytes := p.Size()
 	buffer := make([]byte, min(uint64(cap(data)), rl.BufferSize))
 
