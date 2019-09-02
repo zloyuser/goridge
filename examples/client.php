@@ -1,10 +1,9 @@
 <?php
-use Spiral\Goridge;
 
-require "vendor/autoload.php";
+use Spiral\Goridge\RPC;
 
-$rpc = new Goridge\RPC(
-  new Goridge\SocketRelay("127.0.0.1", 6001)
-);
+require __DIR__ . '/../vendor/autoload.php';
 
-echo $rpc->call("App.Hi", "Antony");
+$rpc = RPC::connect('tcp://localhost:6001');
+
+echo $rpc->call("App.Hi", "World") . \PHP_EOL;

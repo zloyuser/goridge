@@ -43,8 +43,7 @@ func TestSocketSend(t *testing.T) {
 	prefix := NewPrefix().WithFlag(PayloadControl).WithSize(5)
 	payload := []byte("hello")
 
-	conn.expect(write, prefix[:])
-	conn.expect(write, payload)
+	conn.expect(write, append(prefix[:], payload...))
 
 	err := r.Send(payload, prefix.Flags())
 	assert.Nil(t, err)

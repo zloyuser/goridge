@@ -10,19 +10,26 @@
     }
   ],
   "require": {
-    "php": ">=7.0"
+    "php": "^7.1",
+    "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "~6.0"
+    "phpunit/phpunit": "^7.5"
+  },
+  "suggest": {
+    "ext-goridge": "Speed up performance for GoRidge RPC and RoadRunner"
   },
   "autoload": {
     "psr-4": {
-      "Spiral\\Goridge\\": "php-src/"
-    }
+      "Spiral\\Goridge\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
-      "Spiral\\Tests\\": "tests/Cases/"
+      "Spiral\\Goridge\\Tests\\": "tests/"
     }
   }
 }

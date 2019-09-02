@@ -26,15 +26,13 @@ func NewPipeRelay(in io.ReadCloser, out io.WriteCloser) *PipeRelay {
 
 // Send signed (prefixed) data to underlying process.
 func (rl *PipeRelay) Send(data []byte, flags byte) (err error) {
-	rl.muw.Lock()
-	defer rl.muw.Unlock()
-
 	prefix := NewPrefix().WithFlags(flags).WithSize(uint64(len(data)))
-	if _, err := rl.out.Write(append(prefix[:], data...)); err != nil {
-		return err
-	}
 
-	return nil
+	rl.muw.Lock()
+	_, err = rl.out.Write(append(prefix[:], data...))
+	rl.muw.Unlock()
+
+	return err
 }
 
 // Receive data from the underlying process and returns associated prefix or error.

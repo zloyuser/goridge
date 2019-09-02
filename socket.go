@@ -23,19 +23,13 @@ func NewSocketRelay(rwc io.ReadWriteCloser) *SocketRelay {
 
 // Send signed (prefixed) data to PHP process.
 func (rl *SocketRelay) Send(data []byte, flags byte) (err error) {
-	rl.muw.Lock()
-	defer rl.muw.Unlock()
-
 	prefix := NewPrefix().WithFlags(flags).WithSize(uint64(len(data)))
-	if _, err := rl.rwc.Write(prefix[:]); err != nil {
-		return err
-	}
 
-	if _, err := rl.rwc.Write(data); err != nil {
-		return err
-	}
+	rl.muw.Lock()
+	_, err = rl.rwc.Write(append(prefix[:], data...))
+    rl.muw.Unlock()
 
-	return nil
+	return err
 }
 
 // Receive data from the underlying process and returns associated prefix or error.

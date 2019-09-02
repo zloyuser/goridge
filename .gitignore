@@ -1,5 +1,6 @@
 .idea/
-composer.lock
+.vscode/
+.phpunit.result.cache
 vendor/
 clover.xml
 coveralls.json

@@ -11,9 +11,9 @@ High-performance PHP-to-Golang IPC bridge
 Goridge is high performance PHP-to-Golang codec library which works over native PHP sockets and Golang net/rpc package.
  The library allows you to call Go service methods from PHP with minimal footprint, structures and `[]byte` support.
 
-<br/>
-See https://github.com/spiral/roadrunner - High-performance PHP application server, load-balancer and process manager written in Golang
-<br/>
+
+See [RoadRunner](https://github.com/spiral/roadrunner) - High-performance PHP application server, load-balancer and process manager written in Golang
+
 
 Features
 --------
@@ -31,6 +31,7 @@ Features
 
 Installation
 ------------
+
 ```
 $ go get "github.com/spiral/goridge"
 ```
@@ -39,15 +40,17 @@ $ composer require spiral/goridge
 ```
 
 Example
---------
+-------
+
 ```php
 <?php
-use Spiral\Goridge;
-require "vendor/autoload.php";
 
-$rpc = new Goridge\RPC(new Goridge\SocketRelay("127.0.0.1", 6001));
+use Spiral\Goridge\RPC;
 
-echo $rpc->call("App.Hi", "Antony");
+$rpc = RPC::connect("tcp://127.0.0.1:6001");
+
+echo $rpc->call("App.Hi", "World");
+
 ```
 
 ```go
