@@ -1,0 +1,7 @@
+ARG_ENABLE('goridge', 'goridge support', 'no');
+
+if (PHP_GORIDGE != 'no') {
+	AC_DEFINE('HAVE_GORIDGE', 1, 'goridge support enabled');
+
+	EXTENSION('goridge', 'goridge.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
