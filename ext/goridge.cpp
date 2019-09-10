@@ -52,8 +52,7 @@ static zend_object * frame_create(zend_class_entry * ce) {
     return ret;
 }
 
-static frame_object * frame_from_zend(zend_object * objval)
-{
+static frame_object * frame_from_zend(zend_object * objval) {
     return ((frame_object *)(objval + 1)) - 1;
 }
 
@@ -65,8 +64,7 @@ static void frame_free(zend_object * zobj) {
     zend_object_std_dtor(zobj);
 }
 
-static zval * frame_read_property(zval * object, zval * name, int type, void ** cache_slot, zval * rv)
-{
+static zval * frame_read_property(zval * object, zval * name, int type, void ** cache_slot, zval * rv) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(object));
 
     if (strcmp(Z_STRVAL_P(name), "body") == 0) {
@@ -86,13 +84,11 @@ static zval * frame_read_property(zval * object, zval * name, int type, void ** 
     return rv;
 }
 
-static void frame_write_property(zval * object, zval * member, zval * value, void ** cache_slot)
-{
+static void frame_write_property(zval * object, zval * member, zval * value, void ** cache_slot) {
     // NOT IMPLEMENTED
 }
 
-static int frame_has_property(zval * object, zval * name, int type, void ** cache_slot)
-{
+static int frame_has_property(zval * object, zval * name, int type, void ** cache_slot) {
     zval rv;
     int retval = 0;
 
@@ -111,8 +107,7 @@ static int frame_has_property(zval * object, zval * name, int type, void ** cach
     return retval;
 }
 
-static HashTable * frame_get_properties(zval * object)
-{
+static HashTable * frame_get_properties(zval * object) {
     zval zv;
 
     frame_object * frame = frame_from_zend(Z_OBJ_P(object));
@@ -128,9 +123,9 @@ static HashTable * frame_get_properties(zval * object)
     return props;
 }
 
-PHP_METHOD(Frame, __construct)
-{
-    char * body; size_t body_len;
+PHP_METHOD(Frame, __construct) {
+    char * body;
+    size_t body_len;
     zend_long flags = 0;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s|l", &body, &body_len, &flags) == FAILURE) {
@@ -142,29 +137,25 @@ PHP_METHOD(Frame, __construct)
     frame->obj = new Frame(body, body_len, flags);
 }
 
-PHP_METHOD(Frame, isRaw)
-{
+PHP_METHOD(Frame, isRaw) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
     RETURN_BOOL(frame->obj->isRaw());
 }
 
-PHP_METHOD(Frame, isError)
-{
+PHP_METHOD(Frame, isError) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
     RETURN_BOOL(frame->obj->isError());
 }
 
-PHP_METHOD(Frame, isControl)
-{
+PHP_METHOD(Frame, isControl) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
     RETURN_BOOL(frame->obj->isControl());
 }
 
-PHP_METHOD(Frame, __toString)
-{
+PHP_METHOD(Frame, __toString) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
     const char * bytes = frame->obj->pack();
@@ -205,8 +196,7 @@ static zend_object * relay_create(zend_class_entry * ce) {
     return ret;
 }
 
-static relay_object * relay_from_zend(zend_object * objval)
-{
+static relay_object * relay_from_zend(zend_object * objval) {
     return ((relay_object *)(objval + 1)) - 1;
 }
 
@@ -218,8 +208,7 @@ static void relay_free(zend_object * zobj) {
     zend_object_std_dtor(zobj);
 }
 
-PHP_METHOD(Relay, __construct)
-{
+PHP_METHOD(Relay, __construct) {
     zval * input, * output;
 
     php_stream * i_stream, * o_stream;
@@ -236,19 +225,17 @@ PHP_METHOD(Relay, __construct)
     relay->obj = new Relay(new StreamConnection(i_stream, o_stream));
 }
 
-PHP_METHOD(Relay, pipes)
-{
+PHP_METHOD(Relay, pipes) {
     if (zend_parse_parameters_none_throw() == FAILURE) {
         return;
     }
 
     php_stream * s_in, * s_out;
     php_stream_context * sc_in = NULL, * sc_out = NULL;
+    relay_object * relay;
 
     s_in  = php_stream_open_wrapper_ex("php://stdin",  "rb", 0, NULL, sc_in);
     s_out = php_stream_open_wrapper_ex("php://stdout", "wb", 0, NULL, sc_out);
-
-    relay_object *relay = NULL;
 
     object_init_ex(return_value, relay_ce);
 
@@ -256,9 +243,9 @@ PHP_METHOD(Relay, pipes)
     relay->obj = new Relay(new StreamConnection(s_in, s_out));
 }
 
-PHP_METHOD(Relay, connect)
-{
-    char * host; size_t host_len;
+PHP_METHOD(Relay, connect) {
+    char * host;
+    size_t host_len;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s", &host, &host_len) == FAILURE) {
         return;
@@ -267,20 +254,19 @@ PHP_METHOD(Relay, connect)
     try {
         StreamConnection * con = StreamConnection::connect(host);
 
-        relay_object * relay = NULL;
-
         object_init_ex(return_value, relay_ce);
 
-        relay = relay_from_zend(Z_OBJ_P(return_value));
+        relay_object * relay = relay_from_zend(Z_OBJ_P(return_value));
+
         relay->obj = new Relay(con);
-    } catch (ConnectionException e) {
+    } catch (ConnectionException& e) {
         zend_throw_exception(stream_exception_ce, e.what(), 0);
     }
 }
 
-PHP_METHOD(Relay, send)
-{
-    char * payload; size_t payload_len;
+PHP_METHOD(Relay, send) {
+    char * payload;
+    size_t payload_len;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s", &payload, &payload_len) == FAILURE) {
         return;
@@ -293,8 +279,7 @@ PHP_METHOD(Relay, send)
     RETURN_ZVAL(getThis(), 1, 0);
 }
 
-PHP_METHOD(Relay, receive)
-{
+PHP_METHOD(Relay, receive) {
     relay_object * relay = relay_from_zend(Z_OBJ_P(getThis()));
 
     try {
@@ -306,7 +291,7 @@ PHP_METHOD(Relay, receive)
 
         frame = frame_from_zend(Z_OBJ_P(return_value));
         frame->obj = response;
-    } catch (FrameException e) {
+    } catch (FrameException& e) {
         zend_throw_exception(frame_exception_ce, e.what(), 0);
     }
 }
@@ -344,8 +329,7 @@ static zend_object * rpc_create(zend_class_entry * ce) {
     return ret;
 }
 
-static rpc_object * rpc_from_zend(zend_object * objval)
-{
+static rpc_object * rpc_from_zend(zend_object * objval) {
     return ((rpc_object *)(objval + 1)) - 1;
 }
 
@@ -357,8 +341,7 @@ static void rpc_free(zend_object * zobj) {
     zend_object_std_dtor(zobj);
 }
 
-PHP_METHOD(RPC, __construct)
-{
+PHP_METHOD(RPC, __construct) {
     zval * val;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "o", &val) == FAILURE) {
@@ -376,9 +359,9 @@ PHP_METHOD(RPC, __construct)
     }
 }
 
-PHP_METHOD(RPC, connect)
-{
-    char * host; size_t host_len;
+PHP_METHOD(RPC, connect) {
+    char * host;
+    size_t host_len;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s", &host, &host_len) == FAILURE) {
         return;
@@ -387,28 +370,24 @@ PHP_METHOD(RPC, connect)
     try {
         StreamConnection * con = StreamConnection::connect(host);
 
-        rpc_object *rpc = NULL;
-
         object_init_ex(return_value, rpc_ce);
 
-        rpc = rpc_from_zend(Z_OBJ_P(return_value));
+        rpc_object * rpc = rpc_from_zend(Z_OBJ_P(return_value));
 
         rpc->obj = new RPC(new Relay(con));
-    } catch (ConnectionException e) {
+    } catch (ConnectionException& e) {
         zend_throw_exception(stream_exception_ce, e.what(), 0);
     }
 }
 
-PHP_METHOD(RPC, call)
-{
+PHP_METHOD(RPC, call) {
     zval * method, * payload;
-
     bool raw = false;
 
     if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "zz|b", &method, &payload, &raw) == FAILURE) {
         return;
     }
-    
+
     zend_string * data;
 
     if (raw) {
@@ -446,12 +425,12 @@ PHP_METHOD(RPC, call)
             return;
         }
 
-        if (php_json_decode(return_value, (char *) response->body(), response->size(), true, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) {
+        if (php_json_decode(return_value, (char*) response->body(), response->size(), true, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) {
             zend_throw_exception(json_exception_ce, "JSON decode error.", JSON_G(error_code));
 
             return;
         }
-    } catch (RPCException e) {
+    } catch (RPCException& e) {
         zend_throw_exception(rpc_exception_ce, e.what(), 0);
     }
 }
@@ -465,8 +444,7 @@ static zend_function_entry rpc_methods[] = {
 };
 // === RPC ===
 
-PHP_MINIT_FUNCTION(goridge)
-{
+PHP_MINIT_FUNCTION(goridge) {
 #if defined(ZTS) && defined(COMPILE_DL_GORIDGE)
     ZEND_TSRMLS_CACHE_UPDATE();
 #endif
@@ -549,13 +527,11 @@ PHP_MINIT_FUNCTION(goridge)
     return SUCCESS;
 }
 
-PHP_MSHUTDOWN_FUNCTION(goridge)
-{
+PHP_MSHUTDOWN_FUNCTION(goridge) {
     return SUCCESS;
 }
 
-PHP_MINFO_FUNCTION(goridge)
-{
+PHP_MINFO_FUNCTION(goridge) {
     php_info_print_table_start();
     php_info_print_table_row(2, "Goridge support", "enabled");
     php_info_print_table_row(2, "Goridge version", PHP_GORIDGE_VERSION);

@@ -1,15 +1,11 @@
 #include "Frame.hpp"
-#include <iostream>
-#include <iomanip>
 
 namespace Goridge {
-    Frame::Frame(): m_body(""), m_size(size_t(0)), m_flags(0) {
-    }
-
     Frame::Frame(uint8_t flags): m_body(""), m_size(size_t(0)), m_flags(flags) {
     }
 
-    Frame::Frame(const char * body, size_t size, uint8_t flags): m_body(body), m_size(size), m_flags(flags) {
+    Frame::Frame(const char * body, size_t size, uint8_t flags):
+        m_body(body), m_size(size), m_flags(flags) {
     }
 
     const char * Frame::pack() {
@@ -38,38 +34,38 @@ namespace Goridge {
         return bytes;
     }
 
-    size_t Frame::length() {
-        return m_size + HEADER_SIZE;
-    }
-
-    const uint8_t Frame::flags() {
-        return m_flags;
-    }
-
-    const char * Frame::body() {
+    const char * Frame::body() const noexcept {
         return m_body;
     }
 
-    size_t Frame::size() {
+    size_t Frame::size() const noexcept {
         return m_size;
     }
 
-    bool Frame::isNone() {
+    size_t Frame::length() const noexcept {
+        return m_size + HEADER_SIZE;
+    }
+
+    uint8_t Frame::flags() const noexcept {
+        return m_flags;
+    }
+
+    bool Frame::isNone() const noexcept {
         return m_flags & PAYLOAD_NONE;
     }
 
-    bool Frame::isRaw() {
+    bool Frame::isRaw() const noexcept {
         return m_flags & PAYLOAD_RAW;
     }
 
-    bool Frame::isError() {
+    bool Frame::isError() const noexcept {
         return m_flags & PAYLOAD_ERROR;
     }
 
-    bool Frame::isControl() {
+    bool Frame::isControl() const noexcept {
         return m_flags & PAYLOAD_CONTROL;
     }
 
     Frame::~Frame() {
     }
-}
+}  // namespace Goridge

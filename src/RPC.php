@@ -44,10 +44,10 @@ final class RPC
      */
     public function call(string $method, $payload, bool $raw = false)
     {
-        $call = goridge_pack($method . \pack("P", $this->seq), Frame::PAYLOAD_CONTROL | Frame::PAYLOAD_RAW);
+        $call = pack($method . \pack("P", $this->seq), Frame::PAYLOAD_CONTROL | Frame::PAYLOAD_RAW);
 
         if ($raw) {
-            $data = goridge_pack($payload, Frame::PAYLOAD_RAW);
+            $data = pack($payload, Frame::PAYLOAD_RAW);
         } else {
             $body = \json_encode($payload);
 
@@ -55,7 +55,7 @@ final class RPC
                 throw Exception\JSONException::last();
             }
 
-            $data = goridge_pack($body);
+            $data = pack($body);
         }
 
         $this->relay->send($call . $data);

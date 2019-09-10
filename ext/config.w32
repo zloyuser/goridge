@@ -1,7 +1,30 @@
-ARG_ENABLE('goridge', 'goridge support', 'no');
 
-if (PHP_GORIDGE != 'no') {
-	AC_DEFINE('HAVE_GORIDGE', 1, 'goridge support enabled');
+var GORIDGE_EXT_NAME="goridge";
+var GORIDGE_EXT_DIR="ext/goridge/src";
+var GORIDGE_EXT_API="goridge.cpp";
+var GORIDGE_EXT_FLAGS="/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 /I" + configure_module_dirname;
 
-	EXTENSION('goridge', 'goridge.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+function add_src(dir, files) {
+    return ADD_SOURCES(
+        GORIDGE_EXT_DIR + dir,
+        files.join(" "),
+        GORIDGE_EXT_NAME
+    );
+}
+
+ARG_ENABLE("goridge", "for goridge binary protocol support", "no");
+
+if (PHP_GORIDGE != "no") {
+	EXTENSION(GORIDGE_EXT_NAME, GORIDGE_EXT_API, PHP_GORIDGE_SHARED, GORIDGE_EXT_FLAGS);
+
+    add_src("/src",
+    [
+        "Frame.cpp",
+        "Connection.c",
+        "StreamConnection.c",
+        "Relay.c",
+        "RPC.c",
+    ]);
+
+    ADD_EXTENSION_DEP('goridge', 'json');
 }

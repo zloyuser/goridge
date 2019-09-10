@@ -2,5 +2,5 @@
 
 namespace Goridge {
     Connection::~Connection() {
-    };
-}
+    }
+}  // namespace Goridge

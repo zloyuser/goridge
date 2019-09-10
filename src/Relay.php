@@ -68,15 +68,13 @@ final class Relay
     /**
      * @param string $data
      *
-     * @return self
+     * @return void
      */
-    public function send(string $data): self
+    public function send(string $data): void
     {
         if (false === \fwrite($this->output, $data)) {
             throw Exception\StreamException::writeFailed();
         }
-
-        return $this;
     }
 
     /**

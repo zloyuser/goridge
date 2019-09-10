@@ -8,20 +8,19 @@ namespace Goridge {
     }
 
     Frame * RPC::call(const char * method, const char * payload, size_t size, bool raw) {
-        string data(string(method).append((char *) m_seq.byte, 8));
+        string data(string(method).append(m_seq.chars, 8));
+        string binary;
 
-        Frame * f_control = new Frame(data.c_str(), data.size(), PAYLOAD_CONTROL | PAYLOAD_RAW);
+        Frame * f_control = new Frame(data.data(), data.size(), PAYLOAD_CONTROL | PAYLOAD_RAW);
         Frame * f_payload = new Frame(payload, size, raw ? PAYLOAD_RAW : 0);
-        size_t length = f_control->length() + f_payload->length();
 
-        char * binary = new char[length];
+        binary = binary
+            .append(f_control->pack(), f_control->length())
+            .append(f_payload->pack(), f_payload->length());
 
-        memcpy(binary, f_control->pack(), f_control->length());
-        memcpy(binary + f_control->length(), f_payload->pack(), f_payload->length());
+        relay->send(binary.data(), binary.size());
 
-        relay->send(binary, length);
-
-        delete f_control, f_payload, binary;
+        delete f_control, f_payload;
 
         Frame * control = relay->receive();
 
@@ -51,4 +50,4 @@ namespace Goridge {
 
     RPC::~RPC() {
     }
-}
+}  // namespace Goridge

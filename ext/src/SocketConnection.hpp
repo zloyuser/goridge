@@ -10,23 +10,18 @@
 #include "Connection.hpp"
 
 namespace Goridge {
-    class SocketConnection: public Connection {
-        public:
-            SocketConnection(int sock);
+class SocketConnection: public Connection {
+    public:
+        explicit SocketConnection(int sock);
 
-            static SocketConnection * connect(const char * address);
-            static SocketConnection * connect(const char * address, uint16_t port);
+        static SocketConnection * connect(const char * address);
+        static SocketConnection * connect(const char * address, uint16_t port);
 
-            size_t send(const char * payload, size_t length);
-            size_t receive(char * payload, size_t length);
+        size_t send(const char * payload, size_t length);
+        size_t receive(char * payload, size_t length);
 
-            ~SocketConnection();
-        private:
-            const char * m_address;
-            uint16_t m_port;
-
-            bool m_tcp;
-            int m_sock;
-            bool m_connected = false;
-    };
-}
+        ~SocketConnection();
+    private:
+        int m_sock;
+};
+}  // namespace Goridge

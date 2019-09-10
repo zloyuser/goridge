@@ -3,7 +3,7 @@
 
 namespace Goridge {
     StreamConnection::StreamConnection(php_stream * in, php_stream * out): m_in(in), m_out(out) {
-    };
+    }
 
     StreamConnection * StreamConnection::connect(const char * dsn) {
         struct timeval tv {0, 0};
@@ -19,7 +19,7 @@ namespace Goridge {
         }
 
         return new StreamConnection(stream, stream);
-    };
+    }
 
     size_t StreamConnection::send(const char * payload, size_t count) {
         return php_stream_write(m_out, payload, count);
@@ -33,4 +33,4 @@ namespace Goridge {
         php_stream_close(m_in);
         php_stream_close(m_out);
     }
-}
+}  // namespace Goridge

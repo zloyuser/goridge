@@ -13,12 +13,12 @@ ZEND_TSRMLS_CACHE_EXTERN()
 #endif
 
 extern "C" {
-#include "php.h"
-#include "php_streams.h"
+#include "main/php.h"
+#include "main/php_streams.h"
 #include "ext/json/php_json.h"
 #include "ext/standard/info.h"
-#include "zend_exceptions.h"
-#include "zend_smart_str.h"
+#include "Zend/zend_exceptions.h"
+#include "Zend/zend_smart_str.h"
 }
 
 extern zend_module_entry goridge_module_entry;

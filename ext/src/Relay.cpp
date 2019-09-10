@@ -35,26 +35,23 @@ namespace Goridge {
         uint8_t flags = header[0];
         uint64_t size = size_le->integer;
 
-        delete header, size_be, size_le;
+        delete size_be, size_le;
+        delete[] header;
 
         if (size == 0) {
             return new Frame(flags);
         }
 
-        uint64_t to_read = size, offset = 0;
+        size_t to_read = size, offset = 0, chunk, _read;
 
         char * body = new char[size + 1];
 
         while (to_read > 0) {
-            size_t chunk_size = to_read > BUFFER_SIZE ? BUFFER_SIZE : to_read;
-            char * chunk = new char[chunk_size];
-
-            size_t _read = m_con->receive(chunk, chunk_size);
-
-            memcpy(body + offset, chunk, _read);
+            chunk = to_read > BUFFER_SIZE ? BUFFER_SIZE : to_read;
+            _read = m_con->receive(body + offset, chunk);
 
             to_read -= _read;
-            offset += _read;
+            offset  += _read;
         }
 
         body[size] = '\0';
@@ -64,4 +61,4 @@ namespace Goridge {
 
     Relay::~Relay() {
     }
-}
+}  // namespace Goridge

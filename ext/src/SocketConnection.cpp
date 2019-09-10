@@ -5,7 +5,7 @@ using std::copy;
 
 namespace Goridge {
     SocketConnection::SocketConnection(int sock): m_sock(sock) {
-    };
+    }
 
     SocketConnection * SocketConnection::connect(const char * address) {
         sockaddr_un s_addr;
@@ -58,4 +58,4 @@ namespace Goridge {
     SocketConnection::~SocketConnection() {
         ::close(m_sock);
     }
-}
+}  // namespace Goridge

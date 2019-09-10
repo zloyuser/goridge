@@ -64,6 +64,6 @@ final class Frame
      */
     public function __toString()
     {
-        return goridge_pack($this->body, $this->flags);
+        return pack($this->body, $this->flags);
     }
 }
