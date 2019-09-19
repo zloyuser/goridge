@@ -30,6 +30,26 @@ static zend_class_entry * json_exception_ce = NULL;
 static zend_class_entry * rpc_exception_ce = NULL;
 static zend_class_entry * service_exception_ce = NULL;
 
+// === FUNCTIONS ===
+PHP_FUNCTION(goridge_pack)
+{
+    char * body;
+    size_t body_len;
+    zend_long flags = 0;
+
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "|sl", &body, &body_len, &flags) == FAILURE) {
+        return;
+    }
+
+    char *binary = new char[body_len + Goridge::HEADER_SIZE];
+
+    size_t size = Frame::pack(binary, body, body_len, flags);
+
+    RETURN_STRINGL(binary, size);
+
+    delete[] binary;
+}
+
 // === FRAME ===
 typedef struct _frame_object  {
     Frame * obj;
@@ -543,12 +563,17 @@ static const zend_module_dep goridge_module_deps[] = {
     ZEND_MOD_END
 };
 
+static const zend_function_entry goridge_functions[] = {
+    ZEND_NS_RAW_FENTRY("Spiral\\Goridge", "pack", ZEND_FN(goridge_pack), NULL, 0)
+    PHP_FE_END
+};
+
 zend_module_entry goridge_module_entry = {
     STANDARD_MODULE_HEADER_EX,
     NULL,
     goridge_module_deps,
     PHP_GORIDGE_EXTNAME,
-    NULL,
+    goridge_functions,
     PHP_MINIT(goridge),
     PHP_MSHUTDOWN(goridge),
     NULL,

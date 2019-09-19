@@ -26,7 +26,7 @@ class Frame {
         Frame(const char * body, size_t size, uint8_t flags = 0);
 
         const char * pack();
-        static const char * pack(const char * body, size_t size, uint8_t flags);
+        static const size_t pack(char * dst, const char * body, size_t size, uint8_t flags);
 
         const char * body() const noexcept;
         size_t size() const noexcept;
