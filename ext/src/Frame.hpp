@@ -22,26 +22,20 @@ union _size {
 
 class Frame {
     public:
-        explicit Frame(uint8_t flags);
-        Frame(const char * body, size_t size, uint8_t flags = 0);
+        uint8_t flags;
+        size_t size;
+        char * body;
 
-        const char * pack();
+        const size_t pack(char * dst);
         static const size_t pack(char * dst, const char * body, size_t size, uint8_t flags);
 
-        const char * body() const noexcept;
-        size_t size() const noexcept;
         size_t length() const noexcept;
 
-        uint8_t flags() const noexcept;
         bool isNone() const noexcept;
         bool isRaw() const noexcept;
         bool isError() const noexcept;
         bool isControl() const noexcept;
 
         ~Frame();
-    private:
-        const char * m_body;
-        size_t m_size;
-        uint8_t m_flags;
 };
 }  // namespace Goridge

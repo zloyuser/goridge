@@ -9,11 +9,10 @@ class Relay {
 
         void send(Frame * frame);
         void send(const char * data, size_t size);
-        Frame * receive();
+        void receive(Frame * dst);
 
         ~Relay();
     private:
         Connection * m_con;
-        char * m_header;
 };
 }  // namespace Goridge

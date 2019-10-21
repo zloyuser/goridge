@@ -41,7 +41,7 @@ PHP_FUNCTION(goridge_pack)
         return;
     }
 
-    char *binary = new char[body_len + Goridge::HEADER_SIZE];
+    char * binary = new char[body_len + Goridge::HEADER_SIZE];
 
     size_t size = Frame::pack(binary, body, body_len, flags);
 
@@ -88,7 +88,7 @@ static zval * frame_read_property(zval * object, zval * name, int type, void ** 
     frame_object * frame = frame_from_zend(Z_OBJ_P(object));
 
     if (strcmp(Z_STRVAL_P(name), "body") == 0) {
-        zend_string * body = zend_string_init(frame->obj->body(), frame->obj->size(), 0);
+        zend_string * body = zend_string_init(frame->obj->body, frame->obj->size, 0);
 
         ZVAL_NEW_STR(rv, body);
 
@@ -96,7 +96,7 @@ static zval * frame_read_property(zval * object, zval * name, int type, void ** 
     }
 
     if (strcmp(Z_STRVAL_P(name), "flags") == 0) {
-        ZVAL_LONG(rv, frame->obj->flags());
+        ZVAL_LONG(rv, frame->obj->flags);
 
         return rv;
     }
@@ -133,11 +133,11 @@ static HashTable * frame_get_properties(zval * object) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(object));
 
     HashTable * props = zend_std_get_properties(object);
-    zend_string * body = zend_string_init(frame->obj->body(), frame->obj->size(), 0);
+    zend_string * body = zend_string_init(frame->obj->body, frame->obj->size, 0);
 
     ZVAL_NEW_STR(&zv, body);
     zend_hash_str_update(props, "body", sizeof("body") - 1, &zv);
-    ZVAL_LONG(&zv, frame->obj->flags());
+    ZVAL_LONG(&zv, frame->obj->flags);
     zend_hash_str_update(props, "flags", sizeof("flags") - 1, &zv);
 
     return props;
@@ -145,16 +145,19 @@ static HashTable * frame_get_properties(zval * object) {
 
 PHP_METHOD(Frame, __construct) {
     char * body;
-    size_t body_len;
+    size_t size;
     zend_long flags = 0;
 
-    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s|l", &body, &body_len, &flags) == FAILURE) {
+    if (zend_parse_parameters_throw(ZEND_NUM_ARGS(), "s|l", &body, &size, &flags) == FAILURE) {
         return;
     }
 
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
-    frame->obj = new Frame(body, body_len, flags);
+    frame->obj = new Frame;
+    frame->obj->flags = flags;
+    frame->obj->size = size;
+    frame->obj->body = body;
 }
 
 PHP_METHOD(Frame, isRaw) {
@@ -178,7 +181,9 @@ PHP_METHOD(Frame, isControl) {
 PHP_METHOD(Frame, __toString) {
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
-    const char * bytes = frame->obj->pack();
+    char bytes[frame->obj->length()];
+    
+    frame->obj->pack(bytes);
 
     RETURN_STRINGL(bytes, frame->obj->length());
 }
@@ -303,7 +308,9 @@ PHP_METHOD(Relay, receive) {
     relay_object * relay = relay_from_zend(Z_OBJ_P(getThis()));
 
     try {
-        Frame * response = relay->obj->receive();
+        Frame * response = new Frame;
+        
+        relay->obj->receive(response);
 
         frame_object * frame = NULL;
 
@@ -434,18 +441,18 @@ PHP_METHOD(RPC, call) {
         zend_string_free(data);
 
         if (response->isError()) {
-            zend_throw_exception(service_exception_ce, response->body(), 0);
+            zend_throw_exception(service_exception_ce, response->body, 0);
 
             return;
         }
 
         if (response->isRaw()) {
-            RETURN_STRINGL(response->body(), response->size());
+            RETURN_STRINGL(response->body, response->size);
 
             return;
         }
 
-        if (php_json_decode(return_value, (char*) response->body(), response->size(), true, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) {
+        if (php_json_decode(return_value, response->body, response->size, true, PHP_JSON_PARSER_DEFAULT_DEPTH) == FAILURE) {
             zend_throw_exception(json_exception_ce, "JSON decode error.", JSON_G(error_code));
 
             return;
