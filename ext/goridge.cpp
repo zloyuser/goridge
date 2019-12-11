@@ -154,9 +154,8 @@ PHP_METHOD(Frame, __construct) {
 
     frame_object * frame = frame_from_zend(Z_OBJ_P(getThis()));
 
-    frame->obj = new Frame;
+    frame->obj = new Frame(size);
     frame->obj->flags = flags;
-    frame->obj->size = size;
     frame->obj->body = body;
 }
 
@@ -308,9 +307,7 @@ PHP_METHOD(Relay, receive) {
     relay_object * relay = relay_from_zend(Z_OBJ_P(getThis()));
 
     try {
-        Frame * response = new Frame;
-        
-        relay->obj->receive(response);
+        Frame * response = relay->obj->receive();
 
         frame_object * frame = NULL;
 

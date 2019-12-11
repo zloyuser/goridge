@@ -1,6 +1,14 @@
 #include "Frame.hpp"
 
 namespace Goridge {
+    Frame::Frame(uint8_t flags, size_t size): flags(flags), size(size) {
+        body = (char *) malloc(size);
+    }
+
+    Frame::Frame(size_t size): size(size) {
+        body = (char *) malloc(size);
+    }
+
     const size_t Frame::pack(char * dst) {
         return pack(dst, body, size, flags);
     }
@@ -47,5 +55,6 @@ namespace Goridge {
     }
 
     Frame::~Frame() {
+        free(body);
     }
 }  // namespace Goridge

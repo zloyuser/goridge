@@ -13,12 +13,13 @@ namespace Goridge {
         send(data, frame->length());
     }
 
-    void Relay::send(const char * data, size_t size) {
-        m_con->send(data, size);
+    void Relay::send(const char * payload, size_t size) {
+        m_con->send(payload, size);
     }
 
-    void Relay::receive(Frame * dst) {
+    Frame * Relay::receive() {
         char header[HEADER_SIZE];
+        _size size_le;
 
         m_con->receive(header, HEADER_SIZE);
 
@@ -26,32 +27,27 @@ namespace Goridge {
             if (header[i + 1] != header[HEADER_SIZE - 1 - i]) {
                 throw FrameException("Frame checksum mismatch");
             }
+
+            size_le.byte[i] = header[i + 1];
         }
 
-        _size size_le;
+        Frame * dst = new Frame(header[0], size_le.integer);
 
-        memcpy(&size_le, header + 1, 8);
+        if (dst->size != 0) {
+            size_t to_read = dst->size, offset = 0, chunk, _read;
 
-        dst->flags = header[0];
-        dst->size = size_le.integer;
+            while (to_read > 0) {
+                chunk = to_read > BUFFER_SIZE ? BUFFER_SIZE : to_read;
+                _read = m_con->receive(dst->body + offset, chunk);
 
-        if (dst->size == 0) {
-            return;
+                to_read -= _read;
+                offset  += _read;
+            }
+
+            dst->body[dst->size] = '\0';
         }
 
-        size_t to_read = dst->size, offset = 0, chunk, _read;
-
-        dst->body = (char *) malloc(dst->size + 1);
-
-        while (to_read > 0) {
-            chunk = to_read > BUFFER_SIZE ? BUFFER_SIZE : to_read;
-            _read = m_con->receive(dst->body + offset, chunk);
-
-            to_read -= _read;
-            offset  += _read;
-        }
-
-        dst->body[dst->size] = '\0';
+        return dst;
     }
 
     Relay::~Relay() {

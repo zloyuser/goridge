@@ -36,6 +36,8 @@ class Frame {
         bool isError() const noexcept;
         bool isControl() const noexcept;
 
+        explicit Frame(size_t size);
+        Frame(uint8_t flags, size_t size);
         ~Frame();
 };
 }  // namespace Goridge

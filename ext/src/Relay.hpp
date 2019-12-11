@@ -8,8 +8,8 @@ class Relay {
         explicit Relay(Connection * con);
 
         void send(Frame * frame);
-        void send(const char * data, size_t size);
-        void receive(Frame * dst);
+        void send(const char * payload, size_t size);
+        Frame * receive();
 
         ~Relay();
     private:

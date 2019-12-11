@@ -22,22 +22,19 @@ namespace Goridge {
         Frame::pack(binary + l_method, payload, size, raw ? PAYLOAD_RAW : 0);
 
         relay->send(binary, l_method + l_payload);
+        Frame * control = relay->receive();
 
-        Frame control;
-
-        relay->receive(&control);
-
-        if (!control.isControl()) {
+        if (!control->isControl()) {
             throw RPCException("RPC response header is missing");
         }
 
         uint64_t _seq;
-        char _method[control.size - 7];
+        char _method[control->size - 7];
 
-        memcpy(&_seq, control.body + control.size - 8, 8);
-        memcpy(&_method, control.body, control.size - 8);
+        memcpy(&_seq, control->body + control->size - 8, 8);
+        memcpy(&_method, control->body, control->size - 8);
 
-        _method[control.size - 8] = '\0';
+        _method[control->size - 8] = '\0';
 
         if (strcmp(method, _method) != 0) {
             throw RPCException("RPC method mismatch");
@@ -49,11 +46,7 @@ namespace Goridge {
 
         m_seq.integer++;
 
-        Frame * response = new Frame;
-
-        relay->receive(response);
-
-        return response;
+        return relay->receive();
     }
 
     RPC::~RPC() {
